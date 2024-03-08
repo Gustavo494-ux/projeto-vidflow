@@ -3,11 +3,11 @@ const containerVideos = document.querySelector('.videos__container');
 async function buscarEMostrarVideos(){
     try {
         const busca = await fetch('http://localhost:3000/videos');
-        const videos = await busca.json()
+        const videos = await busca.json();
 
         videos.forEach((video) => {
-            if (video.categoria == ""){
-                throw new Error('Video não tem categoria')
+            if (video.categoria === "") {
+                throw new Error('Video não tem categoria');
             }
             containerVideos.innerHTML += `
             <li class="videos__item">
@@ -16,13 +16,66 @@ async function buscarEMostrarVideos(){
                     <img class="img-canal" src="${video.imagem}" alt="Logo do Canal">
                     <h3 class="titulo-video">${video.titulo}</h3>
                     <p class="titulo-canal">${video.descricao}</p>
+                    <p class="categoria" hidden>${video.categoria}</p>
                 </div>
             </li>
             `;
         });
     } catch (error) {
-        containerVideos.innerHTML = `<p>Houve um erro ao carregar os vídeos:${error}</p>`
+        containerVideos.innerHTML = `<p>Houve um erro ao carregar os vídeos: ${error}</p>`;
     }
 }
 
 buscarEMostrarVideos();
+
+const barraDePesquisa  = document.querySelector('.pesquisar__input');
+
+barraDePesquisa.addEventListener('input', filtrarPesquisa);
+
+function filtrarPesquisa() {
+    const videos = document.querySelectorAll('.videos__item');
+
+    if (barraDePesquisa.value !== "") {
+        for (const video of videos) {
+            let titulo = video.querySelector('.titulo-video').textContent.toLowerCase();
+            let valorFiltro = barraDePesquisa.value.toLowerCase();
+            if (!titulo.includes(valorFiltro)) {
+                video.style.display = "none";
+            } else {
+                video.style.display = "block";
+            }
+        }
+    } else {
+        for (const video of videos) {
+            video.style.display = "block";
+        }
+    }
+}
+
+
+const botaoCategoria = document.querySelectorAll('.superior__item');
+
+botaoCategoria.forEach((botao) => {
+
+    let nomeCategoria = botao.getAttribute("name");
+    botao.addEventListener('click', (evento) => filtrarPorCategoria(evento,nomeCategoria));
+});
+
+function filtrarPorCategoria(evento,filtro) {
+    evento.preventDefault();
+    const videos = document.querySelectorAll('.videos__item');
+    for (let video of videos) {
+        console.log(video)
+        let categoria = video.querySelector(".categoria").textContent.toLowerCase();
+        let valorFiltro = filtro.toLowerCase();
+        console.log(categoria)
+        console.log(valorFiltro)
+
+        if (valorFiltro !== 'tudo' && !categoria.includes(valorFiltro)) {
+            video.style.display = "none";
+        } else {
+            video.style.display = "block";
+        }
+    }
+    debugger
+}
